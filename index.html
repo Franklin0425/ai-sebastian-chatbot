@@ -309,22 +309,23 @@
             }
 
             .input-area {
-                padding: 10px 15px; /* Reduced horizontal padding */
+                padding: 10px 10px; /* Reduced horizontal padding further */
             }
 
             #user-input {
                 padding: 10px 15px;
                 border-radius: 20px;
-                margin-right: 8px;
+                margin-right: 6px; /* Adjusted margin */
             }
 
             #send-button, #reset-button, #change-language-button {
-                padding: 10px 12px; /* Further reduced horizontal padding for buttons */
+                padding: 8px 10px; /* Further reduced horizontal padding for buttons */
                 border-radius: 20px;
-                font-size: 0.85em; /* Slightly smaller font for more space */
+                font-size: 0.8em; /* Slightly smaller font for more space */
+                flex-shrink: 0; /* Prevent buttons from shrinking if space is tight */
             }
             #reset-button, #change-language-button {
-                margin-left: 3px; /* Reduced margin for small screens */
+                margin-left: 2px; /* Reduced margin for small screens */
             }
 
             .quick-options {
@@ -377,8 +378,6 @@
             const loadingIndicator = document.getElementById('loading-indicator');
             
             // Define variables for dynamically created elements
-            // IMPORTANT: These are now defined as global-ish variables within this scope,
-            // but their actual DOM elements are *created* inside initializeChat/resetChat.
             let initialRobotMessageDiv; 
             let quickOptionsContainer; 
 
