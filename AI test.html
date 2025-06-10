@@ -377,8 +377,10 @@
             const loadingIndicator = document.getElementById('loading-indicator');
             
             // Define variables for dynamically created elements
-            let initialRobotMessageDiv;
-            let quickOptionsContainer;
+            // IMPORTANT: These are now defined as global-ish variables within this scope,
+            // but their actual DOM elements are *created* inside initializeChat/resetChat.
+            let initialRobotMessageDiv; 
+            let quickOptionsContainer; 
 
             let currentLanguage = 'ja'; // Default language
 
