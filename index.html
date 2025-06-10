@@ -134,6 +134,8 @@
             border-top: 1px solid #eeeeee;
             background-color: #f9f9f9;
             align-items: center;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent items from wrapping */
         }
 
         #user-input {
@@ -145,6 +147,8 @@
             outline: none;
             margin-right: 12px;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            flex-shrink: 0; /* Prevent shrinking below content if needed */
+            min-width: 150px; /* Ensure a minimum width for input on scrollable row */
         }
 
         #user-input:focus {
@@ -163,6 +167,7 @@
             font-weight: 600;
             transition: background-color 0.2s ease, transform 0.1s ease;
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         #send-button:hover {
@@ -236,6 +241,7 @@
             transition: background-color 0.2s ease, transform 0.1s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             margin-left: 10px;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         #reset-button:hover {
@@ -261,6 +267,7 @@
             transition: background-color 0.2s ease, transform 0.1s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             margin-left: 10px;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         #change-language-button:hover {
@@ -309,22 +316,18 @@
             }
 
             .input-area {
-                padding: 10px 10px; /* Reduced horizontal padding further */
+                padding: 10px; /* Simplified horizontal padding */
+                /* No specific horizontal padding for input-area itself, rely on child margins */
             }
 
             #user-input {
-                padding: 10px 15px;
-                border-radius: 20px;
-                margin-right: 6px; /* Adjusted margin */
+                padding: 10px 10px; /* Slightly smaller padding for input */
+                margin-right: 5px; /* Adjusted margin */
             }
 
             #send-button, #reset-button, #change-language-button {
-                padding: 8px 10px; /* Further reduced horizontal padding for buttons */
-                border-radius: 20px;
+                padding: 8px 8px; /* Further reduced horizontal padding for buttons */
                 font-size: 0.8em; /* Slightly smaller font for more space */
-                flex-shrink: 0; /* Prevent buttons from shrinking if space is tight */
-            }
-            #reset-button, #change-language-button {
                 margin-left: 2px; /* Reduced margin for small screens */
             }
 
@@ -629,7 +632,6 @@
                 if (userText === '') return;
 
                 // Remove quick options buttons once user sends a message
-                // quickOptionsContainer will be redefined in initializeChat/resetChat if needed
                 const currentQuickOptionsContainer = document.getElementById('quick-options');
                 if (currentQuickOptionsContainer && currentQuickOptionsContainer.parentNode === chatBox) {
                     chatBox.removeChild(currentQuickOptionsContainer);
@@ -668,17 +670,17 @@
                 chatBox.innerHTML = ''; // Clear all messages in chatBox
 
                 // Dynamically create and append initial robot message
-                initialRobotMessageDiv = document.createElement('div'); // Define initialRobotMessageDiv
+                initialRobotMessageDiv = document.createElement('div');
                 initialRobotMessageDiv.classList.add('message', 'robot');
                 initialRobotMessageDiv.id = 'initial-robot-message';
                 initialRobotMessageDiv.innerHTML = allLanguageData[currentLanguage].initialRobotMessagePrefix + allLanguageData[currentLanguage].disclaimer;
                 chatBox.appendChild(initialRobotMessageDiv);
 
                 // Dynamically create and append quick options container and buttons
-                quickOptionsContainer = document.createElement('div'); // Define quickOptionsContainer
+                quickOptionsContainer = document.createElement('div');
                 quickOptionsContainer.classList.add('quick-options');
                 quickOptionsContainer.id = 'quick-options';
-                chatBox.appendChild(quickOptionsContainer); // Append after initial message
+                chatBox.appendChild(quickOptionsContainer); 
 
                 allLanguageData[currentLanguage].quickOptions.forEach(optionText => {
                     const button = document.createElement('button');
@@ -718,7 +720,7 @@
                 languageSelection.style.display = 'none'; // Hide language selection
                 chatContainer.style.display = 'flex'; // Show chat container
 
-                const chatTitleElement = document.getElementById('chat-title'); // Re-query here
+                const chatTitleElement = document.getElementById('chat-title');
                 if (chatTitleElement) {
                     chatTitleElement.textContent = allLanguageData[currentLanguage].chatTitle;
                 }
@@ -726,14 +728,14 @@
                 chatBox.innerHTML = ''; // Clear all messages in chatBox before adding new content
 
                 // Dynamically create and append initial robot message
-                initialRobotMessageDiv = document.createElement('div'); // Define initialRobotMessageDiv
+                initialRobotMessageDiv = document.createElement('div');
                 initialRobotMessageDiv.classList.add('message', 'robot');
                 initialRobotMessageDiv.id = 'initial-robot-message';
                 initialRobotMessageDiv.innerHTML = allLanguageData[currentLanguage].initialRobotMessagePrefix + allLanguageData[currentLanguage].disclaimer;
                 chatBox.appendChild(initialRobotMessageDiv);
 
                 // Dynamically create and append quick options container and buttons
-                quickOptionsContainer = document.createElement('div'); // Define quickOptionsContainer
+                quickOptionsContainer = document.createElement('div');
                 quickOptionsContainer.classList.add('quick-options');
                 quickOptionsContainer.id = 'quick-options';
                 chatBox.appendChild(quickOptionsContainer); // Append after initial message
