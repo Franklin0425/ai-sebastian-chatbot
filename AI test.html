@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ja"> <!-- Default language for initial load -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIロボット会話シミュレーター</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* 基本样式 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 语言选择界面 */
+        .language-selection {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .language-selection h2 {
+            color: #333333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .language-selection .lang-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            width: 80%;
+            max-width: 250px;
+        }
+
+        .language-selection .lang-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .language-selection .lang-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+        }
+
+
+        /* 聊天容器 */
+        .chat-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px; /* Increased for more overall space */
+            height: 80vh;
+            display: none; /* Initial state: hidden */
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* 标题 */
+        h1 {
+            text-align: center;
+            color: #333333;
+            padding: 18px 20px;
+            border-bottom: 1px solid #eeeeee;
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+            background-color: #f9f9f9;
+        }
+
+        /* 聊天框 */
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        /* 消息样式 */
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 25px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 8px;
+        }
+
+        .message.robot {
+            align-self: flex-start;
+            background-color: #e9ecef;
+            color: #333333;
+            border-bottom-left-radius: 8px;
+        }
+
+        /* 输入区域 */
+        .input-area {
+            display: flex;
+            padding: 15px 20px;
+            border-top: 1px solid #eeeeee;
+            background-color: #f9f9f9;
+            align-items: center;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 12px 18px;
+            border: 1px solid #cccccc;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            margin-right: 12px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #user-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        #send-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        #send-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        #send-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+        }
+
+        /* 加载指示器 */
+        .loading-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 12px 18px;
+            border-radius: 25px;
+            background-color: #e9ecef;
+            color: #333333;
+            font-style: italic;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .loading-indicator.visible {
+            display: block;
+        }
+
+        /* 快速选项按钮容器 */
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 20px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .quick-options button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-options button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .quick-options button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 重置按钮 */
+        #reset-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-left: 10px;
+        }
+
+        #reset-button:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        #reset-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 语言选择按钮 */
+        #change-language-button {
+            background-color: #ffc107; /* Yellow for attention */
+            color: #333;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-left: 10px;
+        }
+
+        #change-language-button:hover {
+            background-color: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        #change-language-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .language-selection {
+                padding: 30px;
+                gap: 15px;
+            }
+            .language-selection h2 {
+                font-size: 1.4em; /* Adjusted for smaller screens */
+            }
+            .language-selection .lang-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .chat-container {
+                height: 95vh;
+                border-radius: 10px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                padding: 15px;
+            }
+
+            .chat-box {
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .message {
+                padding: 10px 15px;
+                border-radius: 20px;
+            }
+
+            .input-area {
+                padding: 10px 15px; /* Reduced horizontal padding */
+            }
+
+            #user-input {
+                padding: 10px 15px;
+                border-radius: 20px;
+                margin-right: 8px;
+            }
+
+            #send-button, #reset-button, #change-language-button {
+                padding: 10px 12px; /* Further reduced horizontal padding for buttons */
+                border-radius: 20px;
+                font-size: 0.85em; /* Slightly smaller font for more space */
+            }
+            #reset-button, #change-language-button {
+                margin-left: 3px; /* Reduced margin for small screens */
+            }
+
+            .quick-options {
+                padding: 8px 15px;
+                gap: 6px;
+            }
+
+            .quick-options button {
+                padding: 7px 12px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-selection" id="language-selection">
+        <h2>言語を選択してください / Please select a language</h2>
+        <button class="lang-button" data-lang="ja">日本語</button>
+        <button class="lang-button" data-lang="en">English</button>
+    </div>
+
+    <div class="chat-container" id="chat-container">
+        <h1 id="chat-title">AIロボットとの会話</h1>
+        <div class="chat-box" id="chat-box">
+            <!-- 初始机器人消息 和 快速选项按钮容器 将由JavaScript动态创建和添加 -->
+            <!-- Initial robot message and quick options container will be dynamically created and added by JavaScript -->
+            
+            <!-- 加载指示器 -->
+            <div class="loading-indicator" id="loading-indicator">
+                <p>考え中...</p>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="メッセージを入力してください..." autofocus>
+            <button id="send-button">送信</button>
+            <button id="reset-button">リセット</button>
+            <button id="change-language-button">言語選択</button> <!-- 新增语言选择按钮 -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const languageSelection = document.getElementById('language-selection');
+            const chatContainer = document.getElementById('chat-container');
+            const chatBox = document.getElementById('chat-box');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const resetButton = document.getElementById('reset-button');
+            const changeLanguageButton = document.getElementById('change-language-button'); // 新增语言选择按钮元素
+            const loadingIndicator = document.getElementById('loading-indicator');
+            
+            // Define variables for dynamically created elements
+            let initialRobotMessageDiv;
+            let quickOptionsContainer;
+
+            let currentLanguage = 'ja'; // Default language
+
+            // All multi-lingual text and content
+            const allLanguageData = {
+                'ja': {
+                    chatTitle: "AIロボットとの会話",
+                    initialRobotMessagePrefix: `こんにちは、私はセバスチャンです！何かお手伝いできることはありますか？<br><br>
+                        以下のサポート内容からお選びいただけます：<br>
+                        ・トラブル診断（機種別サポート、故障状況別サポート）<br>
+                        ・お手入れマニュアル<br>
+                        ・破損・紛失部品のお取り寄せ<br>
+                        ・操作概要を見る<br>
+                        ・操作方法の詳細を見る
+                        `,
+                    disclaimer: `<br><br><span style="color: #666; font-size: 0.9em; font-style: italic;">（このページは機能が不完全であり、基本的なデモンストレーションのみを目的としています）</span>`,
+                    quickOptions: [
+                        "トラブル診断",
+                        "お手入れマニュアル",
+                        "破損・紛失部品のお取り寄せ",
+                        "操作概要を見る",
+                        "操作方法の詳細を見る"
+                    ],
+                    fallbackMessage: "申し訳ありません、その質問にはお答えできません。別の質問をしてください。",
+                    thinkingMessage: "考え中...",
+                    placeholder: "メッセージを入力してください...",
+                    sendButtonText: "送信",
+                    resetButtonText: "リセット",
+                    changeLanguageButtonText: "言語選択",
+                    botIntroPrompt: "あなたは親切で役立つAIロボットです。あなたの名前はセバスチャンです。常に日本語で、敬語を使って返答してください。"
+                },
+                'en': {
+                    chatTitle: "AI Robot Conversation",
+                    initialRobotMessagePrefix: `Hello, I'm Sebastian! How can I assist you today?<br><br>
+                        You can choose from the following support options:<br>
+                        ・Troubleshooting (by machine type, by symptom)<br>
+                        ・Maintenance Manual<br>
+                        ・Order Damaged/Lost Parts<br>
+                        ・View Operation Overview<br>
+                        ・View Operation Details
+                        `,
+                    disclaimer: `<br><br><span style="color: #666; font-size: 0.9em; font-style: italic;">(This page's functionality is incomplete, intended only for basic demonstration.)</span>`,
+                    quickOptions: [
+                        "Troubleshooting",
+                        "Maintenance Manual",
+                        "Order Damaged/Lost Parts",
+                        "View Operation Overview",
+                        "View Operation Details"
+                    ],
+                    fallbackMessage: "I'm sorry, I cannot answer that question. Please ask another question.",
+                    thinkingMessage: "Thinking...",
+                    placeholder: "Type your message here...",
+                    sendButtonText: "Send",
+                    resetButtonText: "Reset",
+                    changeLanguageButtonText: "Language Selection",
+                    botIntroPrompt: "You are a kind and helpful AI robot. Your name is Sebastian. Always respond in English, using polite language."
+                }
+            };
+
+            // Knowledge Base (in both languages)
+            const knowledgeBase = {
+                'ja': [
+                    {
+                        keywords: ["コカ･コーラシステム", "店舗向け機材サポート", "何ですか"],
+                        answer: "コカ･コーラシステム 店舗向け機材サポートは、故障・不具合の対応方法、修理依頼、お手入れマニュアル、破損・紛失部品のお取り寄せに関する情報を提供しています。"
+                    },
+                    {
+                        keywords: ["トラブル診断", "何ができますか"],
+                        answer: "トラブル診断では、故障・不具合の対応方法、および修理依頼が必要な場合にご案内いたします。"
+                    },
+                    {
+                        keywords: ["機種別サポート", "何ですか"],
+                        answer: "機種別サポートでは、お使いの機種を選んで、対応方法をご案内します。"
+                    },
+                    {
+                        keywords: ["故障状況別サポート", "何ですか"],
+                        answer: "故障状況別サポートでは、故障の状況を選んで、対応方法をご案内します。"
+                    },
+                    {
+                        keywords: ["操作概要", "見る"],
+                        answer: "操作概要をご覧になりたい場合は、「操作概要を見る」ボタンをクリックしてください。"
+                    },
+                    {
+                        keywords: ["操作方法", "詳細", "見る"],
+                        answer: "操作方法の詳細をご覧になりたい場合は、「操作方法の詳細を見る」ボタンをクリックしてください。"
+                    },
+                    {
+                        keywords: ["お手入れマニュアル", "どこ", "ありますか"],
+                        answer: "お手入れマニュアルは、「機種を選ぶ」ボタンから各機種のマニュアルをご確認いただけます。"
+                    },
+                    {
+                        keywords: ["破損・紛失部品", "取り寄せ", "方法"],
+                        answer: "破損・紛失部品のお取り寄せは、「依頼する」ボタンからお手続きください。"
+                    },
+                    {
+                        keywords: ["Coldディスペンサー", "種類"],
+                        answer: "Coldディスペンサーには、ツインマスタータイプ、PXTタイプ、コールドプレートタイプ、フローズンタイプがあります。"
+                    },
+                    {
+                        keywords: ["Hotディスペンサー", "種類"],
+                        answer: "Hotディスペンサーには、パウダータイプ、レギュラーコーヒータイプ、パウダー&レギュラーコーヒータイプがあります。"
+                    },
+                    {
+                        keywords: ["機種", "選べますか", "どんな機種"],
+                        answer: "ボタン式タイプ、液晶横型タイプ、液晶縦型（新型ボタン式含む）、PXT、バーガンタイプ、タワータイプ、BUNN、パウダー専用機、レギュラーコーヒー＆パウダー機があります。"
+                    },
+                    {
+                        keywords: ["エラー", "表示", "何ですか"],
+                        answer: "表示されているエラーには、コンデンサ サーモ ケンチ、Lorem Ipsum、Lorem Ipsum2、Lorem Ipsum3 があります。"
+                    },
+                    {
+                        keywords: ["コンデンサ サーモ ケンチ", "何ですか"],
+                        answer: "コンデンサ サーモ ケンチは、サーモスタットの接点がOFFになっている状態です。"
+                    },
+                    {
+                        keywords: ["コンデンサ サーモ ケンチ", "対応方法"],
+                        answer: "コンデンサ サーモ ケンチの対応方法は以下の通りです。1. フィルターは目詰まりしていませんか。目詰まりしている場合、清掃してください。2. 機器周辺に物がある場合は、機器の周りの物を離してください。"
+                    },
+                    {
+                        keywords: ["症状", "選べますか", "どんな症状"],
+                        answer: "お困りの症状には、抽出量についてダミー、抽出のされ方についてダミー、その他ダミーがあります。"
+                    },
+                    // 新增人工客服转接条目 - 日语
+                    {
+                        keywords: ["人工客服", "オペレーター", "人に繋いで"],
+                        answer: "ただいま担当者にお繋ぎしております。しばらくお待ちください。"
+                    }
+                ],
+                'en': [
+                    {
+                        keywords: ["Coca-Cola System", "Store Equipment Support", "What is it"],
+                        answer: "Coca-Cola System Store Equipment Support provides information on how to deal with malfunctions/defects, request repairs, access maintenance manuals, and order damaged/lost parts."
+                    },
+                    {
+                        keywords: ["Troubleshooting", "What can I do"],
+                        answer: "Troubleshooting guides you on how to handle malfunctions/defects and if a repair request is necessary."
+                    },
+                    {
+                        keywords: ["Support by machine type", "What is it"],
+                        answer: "Support by machine type guides you on how to respond by selecting your machine type."
+                    },
+                    {
+                        keywords: ["Support by symptom", "What is it"],
+                        answer: "Support by symptom guides you on how to respond by selecting the symptom of the malfunction."
+                    },
+                    {
+                        keywords: ["Operation overview", "View"],
+                        answer: "If you wish to view the operation overview, please click the 'View Operation Overview' button."
+                    },
+                    {
+                        keywords: ["Operation details", "View"],
+                        answer: "If you wish to view the details of the operation method, please click the 'View Operation Details' button."
+                    },
+                    {
+                        keywords: ["Maintenance manual", "Where can I find it"],
+                        answer: "You can find the maintenance manuals for each machine by clicking the 'Select Machine' button."
+                    },
+                    {
+                        keywords: ["Damaged/lost parts", "How to order"],
+                        answer: "To order damaged or lost parts, please proceed from the 'Request' button."
+                    },
+                    {
+                        keywords: ["Cold Dispenser", "Types"],
+                        answer: "Cold dispensers include Twin Master type, PXT type, Cold Plate type, and Frozen type."
+                    },
+                    {
+                        keywords: ["Hot Dispenser", "Types"],
+                        answer: "Hot dispensers include Powder type, Regular Coffee type, and Powder & Regular Coffee type."
+                    },
+                    {
+                        keywords: ["Machine", "Choose", "What machines"],
+                        answer: "Available machines include Button type, Horizontal LCD type, Vertical LCD type (including new button type), PXT, Bargun type, Tower type, BUNN, Powder-only machine, and Regular Coffee & Powder machine."
+                    },
+                    {
+                        keywords: ["Error", "Display", "What is it"],
+                        answer: "Displayed errors include Condenser Thermo Kenchi, Lorem Ipsum, Lorem Ipsum2, and Lorem Ipsum3."
+                    },
+                    {
+                        keywords: ["Condenser Thermo Kenchi", "What is it"],
+                        answer: "Condenser Thermo Kenchi indicates that the thermostat contact is OFF."
+                    },
+                    {
+                        keywords: ["Condenser Thermo Kenchi", "How to fix"],
+                        answer: "To address Condenser Thermo Kenchi: 1. Check if the filter is clogged. If so, clean it. 2. If there are objects around the machine, move them away."
+                    },
+                    {
+                        keywords: ["Symptoms", "Choose", "What symptoms"],
+                        answer: "Symptoms you might be experiencing include issues with extraction volume (dummy), how extraction is done (dummy), and other issues (dummy)."
+                    },
+                    // 新增人工客服转接条目 - 英语
+                    {
+                        keywords: ["manual customer service", "live agent", "human representative", "speak to someone"],
+                        answer: "Transferring you to a live agent. Please wait."
+                    }
+                ]
+            };
+
+            /**
+             * Adds a message to the chat box
+             * @param {string} sender - The sender of the message ('user' or 'robot')
+             * @param {string} text - The content of the message
+             */
+            function appendMessage(sender, text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', sender);
+                messageDiv.innerHTML = `<p>${text}</p>`;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            /**
+             * Shows or hides the loading indicator
+             * @param {boolean} show - true to show, false to hide
+             */
+            function showLoadingIndicator(show) {
+                if (show) {
+                    loadingIndicator.classList.add('visible');
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else {
+                    loadingIndicator.classList.remove('visible');
+                }
+            }
+
+            /**
+             * Gets AI reply based on the knowledge base for the current language
+             * @param {string} userQuery - The user's input
+             * @returns {string} AI's reply
+             */
+            function getKnowledgeBaseReply(userQuery) {
+                const lowerCaseQuery = userQuery.toLowerCase();
+                const kb = knowledgeBase[currentLanguage];
+                for (const entry of kb) {
+                    for (const keyword of entry.keywords) {
+                        if (lowerCaseQuery.includes(keyword.toLowerCase())) {
+                            return entry.answer;
+                        }
+                    }
+                }
+                return allLanguageData[currentLanguage].fallbackMessage;
+            }
+
+            /**
+             * Sends a message and gets AI's reply
+             */
+            async function sendMessage() {
+                const userText = userInput.value.trim();
+                if (userText === '') return;
+
+                // Remove quick options buttons once user sends a message
+                // quickOptionsContainer will be redefined in initializeChat/resetChat if needed
+                const currentQuickOptionsContainer = document.getElementById('quick-options');
+                if (currentQuickOptionsContainer && currentQuickOptionsContainer.parentNode === chatBox) {
+                    chatBox.removeChild(currentQuickOptionsContainer);
+                }
+
+                appendMessage('user', userText);
+                userInput.value = '';
+                userInput.disabled = true;
+                sendButton.disabled = true;
+                resetButton.disabled = true;
+                changeLanguageButton.disabled = true; // 禁用语言选择按钮
+                showLoadingIndicator(true);
+
+                let aiReply;
+                try {
+                    aiReply = getKnowledgeBaseReply(userText);
+                } catch (error) {
+                    console.error('Error getting reply from knowledge base:', error);
+                    aiReply = allLanguageData[currentLanguage].fallbackMessage; // Use fallback for internal errors
+                } finally {
+                    appendMessage('robot', aiReply);
+
+                    userInput.disabled = false;
+                    sendButton.disabled = false;
+                    resetButton.disabled = false;
+                    changeLanguageButton.disabled = false; // 重新启用语言选择按钮
+                    showLoadingIndicator(false);
+                    userInput.focus();
+                }
+            }
+
+            /**
+             * Resets the chat interface to its initial state for the current language
+             */
+            function resetChat() {
+                chatBox.innerHTML = ''; // Clear all messages in chatBox
+
+                // Dynamically create and append initial robot message
+                initialRobotMessageDiv = document.createElement('div'); // Define initialRobotMessageDiv
+                initialRobotMessageDiv.classList.add('message', 'robot');
+                initialRobotMessageDiv.id = 'initial-robot-message';
+                initialRobotMessageDiv.innerHTML = allLanguageData[currentLanguage].initialRobotMessagePrefix + allLanguageData[currentLanguage].disclaimer;
+                chatBox.appendChild(initialRobotMessageDiv);
+
+                // Dynamically create and append quick options container and buttons
+                quickOptionsContainer = document.createElement('div'); // Define quickOptionsContainer
+                quickOptionsContainer.classList.add('quick-options');
+                quickOptionsContainer.id = 'quick-options';
+                chatBox.appendChild(quickOptionsContainer); // Append after initial message
+
+                allLanguageData[currentLanguage].quickOptions.forEach(optionText => {
+                    const button = document.createElement('button');
+                    button.textContent = optionText;
+                    button.addEventListener('click', () => {
+                        userInput.value = optionText;
+                        sendMessage();
+                    });
+                    quickOptionsContainer.appendChild(button);
+                });
+
+                // Update input area elements
+                userInput.placeholder = allLanguageData[currentLanguage].placeholder;
+                sendButton.textContent = allLanguageData[currentLanguage].sendButtonText;
+                resetButton.textContent = allLanguageData[currentLanguage].resetButtonText;
+                changeLanguageButton.textContent = allLanguageData[currentLanguage].changeLanguageButtonText;
+                loadingIndicator.querySelector('p').textContent = allLanguageData[currentLanguage].thinkingMessage;
+
+                userInput.value = '';
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                resetButton.disabled = false;
+                changeLanguageButton.disabled = false;
+                showLoadingIndicator(false);
+                userInput.focus();
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            /**
+             * Initializes the chat interface with the selected language
+             * @param {string} lang - The selected language ('ja' or 'en')
+             */
+            function initializeChat(lang) {
+                currentLanguage = lang;
+                document.documentElement.lang = lang; // Update HTML lang attribute
+
+                languageSelection.style.display = 'none'; // Hide language selection
+                chatContainer.style.display = 'flex'; // Show chat container
+
+                const chatTitleElement = document.getElementById('chat-title'); // Re-query here
+                if (chatTitleElement) {
+                    chatTitleElement.textContent = allLanguageData[currentLanguage].chatTitle;
+                }
+
+                chatBox.innerHTML = ''; // Clear all messages in chatBox before adding new content
+
+                // Dynamically create and append initial robot message
+                initialRobotMessageDiv = document.createElement('div'); // Define initialRobotMessageDiv
+                initialRobotMessageDiv.classList.add('message', 'robot');
+                initialRobotMessageDiv.id = 'initial-robot-message';
+                initialRobotMessageDiv.innerHTML = allLanguageData[currentLanguage].initialRobotMessagePrefix + allLanguageData[currentLanguage].disclaimer;
+                chatBox.appendChild(initialRobotMessageDiv);
+
+                // Dynamically create and append quick options container and buttons
+                quickOptionsContainer = document.createElement('div'); // Define quickOptionsContainer
+                quickOptionsContainer.classList.add('quick-options');
+                quickOptionsContainer.id = 'quick-options';
+                chatBox.appendChild(quickOptionsContainer); // Append after initial message
+
+                allLanguageData[currentLanguage].quickOptions.forEach(optionText => {
+                    const button = document.createElement('button');
+                    button.textContent = optionText;
+                    button.addEventListener('click', () => {
+                        userInput.value = optionText;
+                        sendMessage();
+                    });
+                    quickOptionsContainer.appendChild(button);
+                });
+
+
+                // Update input area elements
+                userInput.placeholder = allLanguageData[currentLanguage].placeholder;
+                sendButton.textContent = allLanguageData[currentLanguage].sendButtonText;
+                resetButton.textContent = allLanguageData[currentLanguage].resetButtonText;
+                changeLanguageButton.textContent = allLanguageData[currentLanguage].changeLanguageButtonText; // 更新语言选择按钮文本
+                loadingIndicator.querySelector('p').textContent = allLanguageData[currentLanguage].thinkingMessage;
+
+                userInput.focus(); // Focus on input field
+                chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom on init
+            }
+
+            // Event listeners for language selection buttons
+            document.querySelectorAll('.lang-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const lang = event.target.dataset.lang;
+                    initializeChat(lang);
+                });
+            });
+
+            // Bind send button click event
+            sendButton.addEventListener('click', sendMessage);
+
+            // Bind Enter key press event
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Bind reset button click event
+            resetButton.addEventListener('click', resetChat);
+
+            // Bind change language button click event
+            changeLanguageButton.addEventListener('click', () => {
+                // Hide chat container and show language selection
+                chatContainer.style.display = 'none';
+                languageSelection.style.display = 'flex';
+                // Clear the chatbox when returning to language selection
+                chatBox.innerHTML = ''; 
+            });
+        });
+    </script>
+</body>
+</html>
