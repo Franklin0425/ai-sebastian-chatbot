@@ -127,7 +127,7 @@
             border-bottom-left-radius: 8px;
         }
 
-        /* 输入区域 */
+        /* 入力エリア */
         .input-area {
             display: flex;
             padding: 15px 20px;
@@ -180,7 +180,7 @@
             box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
         }
 
-        /* 加载指示器 */
+        /* ローディングインジケーター */
         .loading-indicator {
             display: none;
             align-self: flex-start;
@@ -196,7 +196,7 @@
             display: block;
         }
 
-        /* 快速选项按钮容器 */
+        /* クイックオプションボタンコンテナ */
         .quick-options {
             display: flex;
             flex-wrap: wrap;
@@ -228,7 +228,7 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        /* 重置按钮 */
+        /* リセットボタン */
         #reset-button {
             background-color: #dc3545;
             color: white;
@@ -254,7 +254,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        /* 语言选择按钮 */
+        /* 言語選択ボタン */
         #change-language-button {
             background-color: #ffc107; /* Yellow for attention */
             color: #333;
@@ -281,7 +281,7 @@
         }
 
 
-        /* 响应式设计 */
+        /* レスポンシブデザイン */
         @media (max-width: 600px) {
             .language-selection {
                 padding: 30px;
@@ -353,10 +353,10 @@
     <div class="chat-container" id="chat-container">
         <h1 id="chat-title">AIロボットとの会話</h1>
         <div class="chat-box" id="chat-box">
-            <!-- 初始机器人消息 和 快速选项按钮容器 将由JavaScript动态创建和添加 -->
+            <!-- 最初のロボットメッセージとクイックオプションボタンコンテナはJavaScriptによって動的に作成・追加されます -->
             <!-- Initial robot message and quick options container will be dynamically created and added by JavaScript -->
             
-            <!-- 加载指示器 -->
+            <!-- ローディングインジケーター -->
             <div class="loading-indicator" id="loading-indicator">
                 <p>考え中...</p>
             </div>
@@ -365,7 +365,7 @@
             <input type="text" id="user-input" placeholder="メッセージを入力してください..." autofocus>
             <button id="send-button">送信</button>
             <button id="reset-button">リセット</button>
-            <button id="change-language-button">言語選択</button> <!-- 新增语言选择按钮 -->
+            <button id="change-language-button">言語選択</button> <!-- 新しい言語選択ボタン -->
         </div>
     </div>
 
@@ -377,16 +377,16 @@
             const userInput = document.getElementById('user-input');
             const sendButton = document.getElementById('send-button');
             const resetButton = document.getElementById('reset-button');
-            const changeLanguageButton = document.getElementById('change-language-button'); // 新增语言选择按钮元素
+            const changeLanguageButton = document.getElementById('change-language-button'); // 新しい言語選択ボタン要素
             const loadingIndicator = document.getElementById('loading-indicator');
             
-            // Define variables for dynamically created elements
+            // 動的に作成される要素の変数を定義
             let initialRobotMessageDiv; 
             let quickOptionsContainer; 
 
-            let currentLanguage = 'ja'; // Default language
+            let currentLanguage = 'ja'; // デフォルト言語
 
-            // All multi-lingual text and content
+            // 全ての多言語テキストとコンテンツ
             const allLanguageData = {
                 'ja': {
                     chatTitle: "AIロボットとの会話",
@@ -405,6 +405,27 @@
                         "破損・紛失部品のお取り寄せ",
                         "操作概要を見る",
                         "操作方法の詳細を見る"
+                    ],
+                    // トラブル診断のサブオプションを追加
+                    troubleshootingSubOptions: [
+                        "故障状況別サポート",
+                        "機種別サポート"
+                    ],
+                    // お困りの症状を選んでくださいのサブオプションを追加
+                    symptomSubOptions: [
+                        "お困りの症状を選んでください"
+                    ],
+                    // 商品量、抽出のされ方に関するトラブルのサブオプションを追加
+                    productExtractionTroubleOptions: [
+                        "商品量、抽出のされ方に関するトラブル"
+                    ],
+                    // 商品が出ないトラブルのサブオプションを追加
+                    noProductTroubleSubOptions: [
+                        "商品が出ないトラブル"
+                    ],
+                    // 商品が出ないの最終オプションを追加
+                    noProductFinalOptions: [
+                        "商品が出ない"
                     ],
                     fallbackMessage: "申し訳ありません、その質問にはお答えできません。別の質問をしてください。",
                     thinkingMessage: "考え中...",
@@ -431,6 +452,27 @@
                         "Order Damaged/Lost Parts",
                         "View Operation Overview",
                         "View Operation Details"
+                    ],
+                    // Add sub-options for troubleshooting in English
+                    troubleshootingSubOptions: [
+                        "Support by symptom",
+                        "Support by machine type"
+                    ],
+                    // Add sub-options for symptom selection in English
+                    symptomSubOptions: [
+                        "Please select your symptom"
+                    ],
+                    // Add sub-options for product/extraction trouble in English
+                    productExtractionTroubleOptions: [
+                        "Product volume, extraction method issues"
+                    ],
+                    // Add sub-options for no product trouble in English
+                    noProductTroubleSubOptions: [
+                        "No product coming out trouble"
+                    ],
+                    // Add final option for no product in English
+                    noProductFinalOptions: [
+                        "No product coming out"
                     ],
                     fallbackMessage: "I'm sorry, I cannot answer that question. Please ask another question.",
                     thinkingMessage: "Thinking...",
@@ -476,7 +518,8 @@
                     {
                         keywords: ["破損・紛失部品", "取り寄せ", "方法"],
                         answer: "破損・紛失部品のお取り寄せは、「依頼する」ボタンからお手続きください。"
-                    },
+                    }
+                    ,
                     {
                         keywords: ["Coldディスペンサー", "種類"],
                         answer: "Coldディスペンサーには、ツインマスタータイプ、PXTタイプ、コールドプレートタイプ、フローズンタイプがあります。"
@@ -509,6 +552,35 @@
                     {
                         keywords: ["人工客服", "オペレーター", "人に繋いで"],
                         answer: "ただいま担当者にお繋ぎしております。しばらくお待ちください。"
+                    },
+                    // 新增故障状況別サポートに対する返答
+                    {
+                        keywords: ["故障状況別サポート"],
+                        answer: "どのような状況でお困りですか？"
+                    },
+                    // 新增お困りの症状を選んでくださいに対する返答
+                    {
+                        keywords: ["お困りの症状を選んでください"],
+                        answer: "具体的な症状をお選びください。"
+                    },
+                    // 新增商品量、抽出のされ方に関するトラブルに対する返答
+                    {
+                        keywords: ["商品量、抽出のされ方に関するトラブル"],
+                        answer: "商品量や抽出方法に関するトラブルですね。どのような症状ですか？"
+                    },
+                    // 新增商品が出ないトラブルに対する返答
+                    {
+                        keywords: ["商品が出ないトラブル"],
+                        answer: "商品が出ないトラブルですね。具体的な症状をお聞かせください。"
+                    },
+                    // 新增商品が出ないに対する最終返答
+                    {
+                        keywords: ["商品が出ない"],
+                        answer: `対応方法：<br>
+                        1. 電源が入っているか、販売可スイッチがONであることを確認してください。<br>
+                        2. 押しボタンか、キーボードに売り切れ表示がついている場合、商品補充を実施してください。<br>
+                        3. 出ない商品の原料の残量はありますか。残量がなければ原料を補充してください。機器との接続が適切かご確認ください。<br>
+                        4. 炭酸ガス残量はありますか。無ければ交換してください。在庫がない場合、ガスを発注し、交換したうえで再度、症状が発生するかご確認ください。`
                     }
                 ],
                 'en': [
@@ -563,7 +635,8 @@
                     {
                         keywords: ["Condenser Thermo Kenchi", "What is it"],
                         answer: "Condenser Thermo Kenchi indicates that the thermostat contact is OFF."
-                    },
+                    }
+                    ,
                     {
                         keywords: ["Condenser Thermo Kenchi", "How to fix"],
                         answer: "To address Condenser Thermo Kenchi: 1. Check if the filter is clogged. If so, clean it. 2. If there are objects around the machine, move them away."
@@ -576,6 +649,36 @@
                     {
                         keywords: ["manual customer service", "live agent", "human representative", "speak to someone"],
                         answer: "Transferring you to a live agent. Please wait."
+                    },
+                    // Add reply for "Support by symptom"
+                    {
+                        keywords: ["Support by symptom"],
+                        answer: "What kind of situation are you facing?"
+                    },
+                    // Add reply for "Please select your symptom"
+                    {
+                        keywords: ["Please select your symptom"],
+                        answer: "Please select a specific symptom."
+                    },
+                    // Add reply for "Product volume, extraction method issues"
+                    {
+                        keywords: ["Product volume, extraction method issues"],
+                        answer: "Product volume or extraction method trouble. What is the symptom?"
+                    }
+                    ,
+                    // Add reply for "No product coming out trouble"
+                    {
+                        keywords: ["No product coming out trouble"],
+                        answer: "No product coming out trouble. Please tell me the specific symptom."
+                    },
+                    // Add reply for "No product coming out"
+                    {
+                        keywords: ["No product coming out"],
+                        answer: `Troubleshooting steps:<br>
+                        1. Check if the power is on and the sales switch is ON.<br>
+                        2. If the push button or keyboard shows "sold out", replenish the product.<br>
+                        3. Is there any raw material left for the product that is not coming out? If not, replenish the raw material. Please check if the connection with the equipment is appropriate.<br>
+                        4. Is there any carbonated gas left? If not, replace it. If out of stock, order gas, replace it, and then check if the symptom occurs again.`
                     }
                 ]
             };
@@ -607,6 +710,51 @@
             }
 
             /**
+             * Creates and appends a container with quick option buttons.
+             * @param {Array<string>} options - An array of button texts.
+             * @param {string} containerId - The ID for the new container.
+             */
+            function createAndAppendQuickOptions(options, containerId) {
+                const newQuickOptionsContainer = document.createElement('div');
+                newQuickOptionsContainer.classList.add('quick-options');
+                newQuickOptionsContainer.id = containerId;
+                chatBox.appendChild(newQuickOptionsContainer);
+
+                options.forEach(optionText => {
+                    const button = document.createElement('button');
+                    button.textContent = optionText;
+                    button.addEventListener('click', () => {
+                        userInput.value = optionText;
+                        sendMessage();
+                    });
+                    newQuickOptionsContainer.appendChild(button);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+            }
+
+            /**
+             * Creates and appends a specific button for live support.
+             */
+            function createAndAppendLiveSupportButton() {
+                const liveSupportButtonContainer = document.createElement('div');
+                liveSupportButtonContainer.classList.add('quick-options'); // Re-use quick-options style
+                liveSupportButtonContainer.id = 'live-support-button-container';
+                chatBox.appendChild(liveSupportButtonContainer);
+
+                const button = document.createElement('button');
+                button.textContent = allLanguageData[currentLanguage].liveSupportButtonText;
+                button.style.backgroundColor = '#28a745'; // Green color for support
+                button.style.color = 'white';
+                button.addEventListener('click', () => {
+                    userInput.value = allLanguageData[currentLanguage].liveSupportButtonText;
+                    sendMessage();
+                });
+                liveSupportButtonContainer.appendChild(button);
+                chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+            }
+
+
+            /**
              * Gets AI reply based on the knowledge base for the current language
              * @param {string} userQuery - The user's input
              * @returns {string} AI's reply
@@ -631,11 +779,14 @@
                 const userText = userInput.value.trim();
                 if (userText === '') return;
 
-                // Remove quick options buttons once user sends a message
-                const currentQuickOptionsContainer = document.getElementById('quick-options');
-                if (currentQuickOptionsContainer && currentQuickOptionsContainer.parentNode === chatBox) {
-                    chatBox.removeChild(currentQuickOptionsContainer);
-                }
+                // Remove all previous quick option containers
+                const allQuickOptionContainers = document.querySelectorAll('.quick-options');
+                allQuickOptionContainers.forEach(container => {
+                    if (container.parentNode === chatBox) {
+                        chatBox.removeChild(container);
+                    }
+                });
+
 
                 appendMessage('user', userText);
                 userInput.value = '';
@@ -654,12 +805,30 @@
                 } finally {
                     appendMessage('robot', aiReply);
 
+                    // Logic for displaying nested options based on user's last message
+                    if (userText === allLanguageData[currentLanguage].quickOptions[0] /* "トラブル診断" */) {
+                        createAndAppendQuickOptions(allLanguageData[currentLanguage].troubleshootingSubOptions, 'sub-options-troubleshooting');
+                    } else if (userText === allLanguageData[currentLanguage].troubleshootingSubOptions[0] /* "故障状況別サポート" */) {
+                        createAndAppendQuickOptions(allLanguageData[currentLanguage].symptomSubOptions, 'sub-options-symptom');
+                    } else if (userText === allLanguageData[currentLanguage].symptomSubOptions[0] /* "お困りの症状を選んでください" */) {
+                        createAndAppendQuickOptions(allLanguageData[currentLanguage].productExtractionTroubleOptions, 'sub-options-product-extraction');
+                    } else if (userText === allLanguageData[currentLanguage].productExtractionTroubleOptions[0] /* "商品量、抽出のされ方に関するトラブル" */) {
+                        createAndAppendQuickOptions(allLanguageData[currentLanguage].noProductTroubleSubOptions, 'sub-options-no-product-trouble');
+                    } else if (userText === allLanguageData[currentLanguage].noProductTroubleSubOptions[0] /* "商品が出ないトラブル" */) {
+                        createAndAppendQuickOptions(allLanguageData[currentLanguage].noProductFinalOptions, 'sub-options-no-product-final');
+                    } else if (userText === allLanguageData[currentLanguage].noProductFinalOptions[0] /* "商品が出ない" */) {
+                        // After final text response, append the live support button
+                        createAndAppendLiveSupportButton();
+                    }
+
+
                     userInput.disabled = false;
                     sendButton.disabled = false;
                     resetButton.disabled = false;
                     changeLanguageButton.disabled = false; // 重新启用语言选择按钮
                     showLoadingIndicator(false);
                     userInput.focus();
+                    chatBox.scrollTop = chatBox.scrollHeight;
                 }
             }
 
@@ -677,20 +846,8 @@
                 chatBox.appendChild(initialRobotMessageDiv);
 
                 // Dynamically create and append quick options container and buttons
-                quickOptionsContainer = document.createElement('div');
-                quickOptionsContainer.classList.add('quick-options');
-                quickOptionsContainer.id = 'quick-options';
-                chatBox.appendChild(quickOptionsContainer); 
+                createAndAppendQuickOptions(allLanguageData[currentLanguage].quickOptions, 'quick-options');
 
-                allLanguageData[currentLanguage].quickOptions.forEach(optionText => {
-                    const button = document.createElement('button');
-                    button.textContent = optionText;
-                    button.addEventListener('click', () => {
-                        userInput.value = optionText;
-                        sendMessage();
-                    });
-                    quickOptionsContainer.appendChild(button);
-                });
 
                 // Update input area elements
                 userInput.placeholder = allLanguageData[currentLanguage].placeholder;
@@ -735,27 +892,14 @@
                 chatBox.appendChild(initialRobotMessageDiv);
 
                 // Dynamically create and append quick options container and buttons
-                quickOptionsContainer = document.createElement('div');
-                quickOptionsContainer.classList.add('quick-options');
-                quickOptionsContainer.id = 'quick-options';
-                chatBox.appendChild(quickOptionsContainer); // Append after initial message
-
-                allLanguageData[currentLanguage].quickOptions.forEach(optionText => {
-                    const button = document.createElement('button');
-                    button.textContent = optionText;
-                    button.addEventListener('click', () => {
-                        userInput.value = optionText;
-                        sendMessage();
-                    });
-                    quickOptionsContainer.appendChild(button);
-                });
+                createAndAppendQuickOptions(allLanguageData[currentLanguage].quickOptions, 'quick-options');
 
 
                 // Update input area elements
                 userInput.placeholder = allLanguageData[currentLanguage].placeholder;
                 sendButton.textContent = allLanguageData[currentLanguage].sendButtonText;
                 resetButton.textContent = allLanguageData[currentLanguage].resetButtonText;
-                changeLanguageButton.textContent = allLanguageData[currentLanguage].changeLanguageButtonText; // 更新语言选择按钮文本
+                changeLanguageButton.textContent = allLanguageData[currentLanguage].changeLanguageButtonText; // 更新语言选择ボタンテキスト
                 loadingIndicator.querySelector('p').textContent = allLanguageData[currentLanguage].thinkingMessage;
 
                 userInput.focus(); // Focus on input field
